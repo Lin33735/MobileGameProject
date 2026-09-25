@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour
 {
@@ -12,5 +13,12 @@ public class UIManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void ChangeSceneByName(string name)
+    {
+        if (name !=null){
+            SceneManager.LoadScene(name);
+        }
     }
 }
