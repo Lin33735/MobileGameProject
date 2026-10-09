@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1374535824736710008}
   - component: {fileID: 6018095972847694490}
+  - component: {fileID: 5618364911130197902}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -44,3 +45,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 738dc5b111b9ae8488f2dfb66ff636d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
+  PauseMenu: {fileID: 0}
+  UI: {fileID: 0}
+  gamePaused: 0
+--- !u!114 &5618364911130197902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8276973548907225943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25ef306e846f1184dba1785c085ed9f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  OnTouch: {fileID: -2840082678024143964, guid: 6ec29784072bef8499fa3e62a90a9ef2, type: 3}
+  player: {fileID: 0}
+  gameManager: {fileID: 0}
+  pLvl: 0
+  pSP: 0
+  pBATK: 0
+  pDMGMULT: 0
+  pBurnDMGScale: 0
+  pBurnDMGDur: 0

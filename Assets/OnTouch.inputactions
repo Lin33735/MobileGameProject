@@ -1,0 +1,36 @@
+{
+    "version": 1,
+    "name": "OnTouch",
+    "maps": [
+        {
+            "name": "Clicker",
+            "id": "e8a36455-84f9-498c-aa17-ec681a833c99",
+            "actions": [
+                {
+                    "name": "Clicker",
+                    "type": "Button",
+                    "id": "62096db1-aa54-4bc3-9352-6bc38c8a3be1",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "1cc0e3bd-c1e9-4ddc-b1a6-9f5b9c88c8c7",
+                    "path": "<Pointer>/press",
+                    "interactions": "Hold,Tap",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Clicker",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

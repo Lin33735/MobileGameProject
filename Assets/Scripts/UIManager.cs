@@ -1,10 +1,14 @@
+using System.Linq.Expressions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
     [SerializeField] GameObject PauseMenu;
     [SerializeField] GameObject UI;
+
+    public Slider sliderEHP;
 
     public bool gamePaused;
 
@@ -39,5 +43,15 @@ public class UIManager : MonoBehaviour
         if (name !=null){
             SceneManager.LoadScene(name);
         }
+    }
+    
+    public void DisplayEnemyHPBar (bool full, float current)
+    {
+        if (full)
+        {
+            sliderEHP.maxValue = current;
+        }
+        sliderEHP.value = current;
+        Debug.Log($"{ sliderEHP.value}, { sliderEHP.maxValue}");
     }
 }
