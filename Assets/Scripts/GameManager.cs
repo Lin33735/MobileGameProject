@@ -26,6 +26,10 @@ public class GameManager : MonoBehaviour
     public float pDMGMULT;
     public float pBurnDMGScale;
     public float pBurnDur;
+    public int pCRITR;
+    public float pCRITDMG;
+
+    public float pStatPoint;
 
     [Header("EnemyStat")]
     public float eBHP;
@@ -57,6 +61,8 @@ public class GameManager : MonoBehaviour
         pBATK = 10f;
         pHoldEnable = false;
         pDMGMULT = 1f;
+        pCRITR = 5;
+        pCRITDMG = 50;
         pBurnEnable = false;
         pBurnDMGScale = 0.01f;
         pBurnDur = 5f;
@@ -75,7 +81,8 @@ public class GameManager : MonoBehaviour
         //Spawn Enemy When Killed
         if (eHP <= 0)
         {
-            roundNum ++;
+            roundNum++;
+            pStatPoint++;
             SpawnEnemy();
         }
     }
@@ -132,7 +139,14 @@ public class GameManager : MonoBehaviour
 
     public float DMGCalc()
     {
-        return pBATK * pDMGMULT;
+        int timeCrit = pCRITR / 100;
+        if (Random.Range(0, 100) <= pCRITR % 100)
+        {
+            timeCrit++;
+        }
+        Debug.Log(timeCrit);
+        Debug.Log(pCRITDMG / 100);
+        return pBATK * (1 + timeCrit * (pCRITDMG/100)) * pDMGMULT;
     }
 
     public void SpawnEnemy()
@@ -146,7 +160,21 @@ public class GameManager : MonoBehaviour
         {
             eHP = (1 + roundNum / 10) * eBHP;
         }
-        eBHP = (1 + roundNum / 10) * eBHP;
+        //HP Scaling
+        eBHP = (1 + roundNum / 20) * eBHP;
         this.GetComponent<UIManager>().DisplayEnemyHPBar(true, eHP);
+    }
+    
+    public void ToggleOnTouch(bool t)
+    {
+        if (t == true)
+        {
+            OnTouch.action.Disable();
+        }
+        else
+        {
+            OnTouch.action.Enable();
+        }
+        
     }
 }

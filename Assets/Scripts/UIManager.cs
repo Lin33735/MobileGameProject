@@ -75,11 +75,14 @@ public class UIManager : MonoBehaviour
         if (statPanelOpen)
         {
             statPanelOpen = false;
+            this.GetComponent<GameManager>().ToggleOnTouch(false);
+
             StartAnimation(hiddenPos);
         }
         else
         {
             statPanelOpen = true;
+            this.GetComponent<GameManager>().ToggleOnTouch(true);
             StartAnimation(shownPos);
         }
     }
