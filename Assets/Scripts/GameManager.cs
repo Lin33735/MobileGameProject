@@ -1,7 +1,7 @@
-using System.CodeDom.Compiler;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Interactions;
+
 
 public class GameManager : MonoBehaviour
 {
@@ -10,28 +10,32 @@ public class GameManager : MonoBehaviour
     private bool isHolding;
     private float holdTimer;
 
-    public float roundNum;
+    public float roundNum = 1;
 
     [Header("PlayerStat")]
     public GameObject player;
     
-    public int pLvl;
-    public int pSP;
+    public int pLvl = 1;
+    public int pSP = 1;
 
-    public bool pHoldEnable;
-    public bool pBurnEnable;
+    public bool pHoldEnable = false;
+    public bool pBurnEnable = false;
 
-    public float pBATK;
-    public float pDMGMULT;
-    public float pBurnDMGScale;
-    public float pBurnDur;
-    public int pCRITR;
-    public float pCRITDMG;
+    public float pBATK = 10f;
+    public float pDMGMULT = 1f;
+    public float pBurnDMGScale = 0.01f;
+    public float pBurnDur = 5f;
+    public float pCRITR = 0.05f;
+    public float pCRITDMG = 0.5f;
 
     public float pStatPoint;
 
     [Header("EnemyStat")]
-    public float eBHP;
+    public GameObject enemy;
+
+    public bool isElite = false;
+    public float eliteChance = 0.2f;
+    public float eBHP = 100f;
     public float eHP;
 
     private void OnEnable()
@@ -51,21 +55,6 @@ public class GameManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        roundNum = 1;
-        
-        eBHP = 100f;
-
-        pLvl = 1;
-        pSP = 1;
-        pBATK = 10f;
-        pHoldEnable = false;
-        pDMGMULT = 1f;
-        pCRITR = 5;
-        pCRITDMG = 50;
-        pBurnEnable = false;
-        pBurnDMGScale = 0.01f;
-        pBurnDur = 5f;
-
         SpawnEnemy();
     }
 
@@ -81,7 +70,15 @@ public class GameManager : MonoBehaviour
         if (eHP <= 0)
         {
             roundNum++;
-            pStatPoint++;
+            if (isElite)
+            {
+                pStatPoint += 3;
+            }
+            else
+            {
+                pStatPoint ++;
+            }
+            GetComponent<GameUIManager>().UpdateStatDisplay();
             SpawnEnemy();
         }
     }
@@ -123,7 +120,8 @@ public class GameManager : MonoBehaviour
     private void OnTap(InputAction.CallbackContext ctx)
     {
         eHP -= DMGCalc();
-        this.GetComponent<UIManager>().DisplayEnemyHPBar(false,eHP);
+        GetComponent<GameUIManager>().InstantiateDMGText(DMGCalc());
+        GetComponent<GameUIManager>().DisplayEnemyHPBar(false,eHP);
     }
 
     private void OnHoldStart()
@@ -138,30 +136,41 @@ public class GameManager : MonoBehaviour
 
     public float DMGCalc()
     {
-        int timeCrit = pCRITR / 100;
-        if (Random.Range(0, 100) <= pCRITR % 100)
+        float CritAmount = Mathf.Floor(pCRITR);
+        if (UnityEngine.Random.value <= pCRITR % 1)
         {
-            timeCrit++;
+            CritAmount++;
         }
-        Debug.Log(timeCrit);
-        Debug.Log(pCRITDMG / 100);
-        return pBATK * (1 + timeCrit * (pCRITDMG/100)) * pDMGMULT;
+        Debug.Log(CritAmount);
+        Debug.Log(pCRITDMG);
+        return pBATK * (1 + CritAmount * pCRITDMG) * pDMGMULT;
     }
 
     public void SpawnEnemy()
     {
+        if (roundNum == 1)
+        {
+            eHP = eBHP;
+            enemy.GetComponent<SpriteRenderer>().color = new Color(1f, 0.44f, 0.44f, 1f);
+            GetComponent<GameUIManager>().DisplayEnemyHPBar(true, eHP);
+            return;
+        }
         //Check is spawn is Elite
-        if (UnityEngine.Random.Range(0,100) >= 90 && roundNum > 4)
+        if (UnityEngine.Random.value <= eliteChance && roundNum > 4)
         {
             eHP = (1 + roundNum / 5) * eBHP;
+            isElite = true;
+            enemy.GetComponent<SpriteRenderer>().color = new Color(0.75f, 0.44f, 1f, 1f);
         }
         else
         {
             eHP = (1 + roundNum / 10) * eBHP;
+            isElite= false;
+            enemy.GetComponent<SpriteRenderer>().color = new Color(1f, 0.44f, 0.44f, 1f);
         }
         //HP Scaling
-        eBHP = (1 + roundNum / 20) * eBHP;
-        this.GetComponent<UIManager>().DisplayEnemyHPBar(true, eHP);
+        eBHP = (1 + roundNum / 40) * eBHP;
+        GetComponent<GameUIManager>().DisplayEnemyHPBar(true, eHP);
     }
     
     public void ToggleOnTouch(bool t)
@@ -174,6 +183,35 @@ public class GameManager : MonoBehaviour
         {
             OnTouch.action.Enable();
         }
-        
+    }
+
+    public void IncrementATK()
+    {
+        if (pStatPoint > 0)
+        {
+            pBATK += 5;
+            pStatPoint--;
+            GetComponent<GameUIManager>().UpdateStatDisplay();
+        }
+    }
+
+    public void IncrementCritR()
+    {
+        if (pStatPoint > 0)
+        {
+            pCRITR += 0.01f;
+            pStatPoint--;
+            GetComponent<GameUIManager>().UpdateStatDisplay();
+        }
+    }
+
+    public void IncrementCritDMG()
+    {
+        if (pStatPoint > 0)
+        {
+            pCRITDMG += 0.1f;
+            pStatPoint--;
+            GetComponent<GameUIManager>().UpdateStatDisplay();
+        }
     }
 }
