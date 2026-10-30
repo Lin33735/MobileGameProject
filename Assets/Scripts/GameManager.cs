@@ -5,6 +5,8 @@ using UnityEngine.InputSystem.Interactions;
 
 public class GameManager : MonoBehaviour
 {
+    public ParticleSystem hitEffect;
+
     [Header("Control")]
     [SerializeField] private InputActionReference OnTouch;
     private bool isHolding;
@@ -122,6 +124,7 @@ public class GameManager : MonoBehaviour
         eHP -= DMGCalc();
         GetComponent<GameUIManager>().InstantiateDMGText(DMGCalc());
         GetComponent<GameUIManager>().DisplayEnemyHPBar(false,eHP);
+        hitEffect.Play();
     }
 
     private void OnHoldStart()
