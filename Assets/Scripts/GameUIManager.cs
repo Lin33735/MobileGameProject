@@ -131,6 +131,6 @@ public class GameUIManager : MonoBehaviour
         statPoints.text = "Points = " + GetComponent<GameManager>().pStatPoint.ToString();
         ATKStat.text = "ATK = " + GetComponent<GameManager>().pBATK.ToString("F0");
         critRStat.text = "Crit Rate = " + (GetComponent<GameManager>().pCRITR * 100).ToString("F0") + "%";
-        critDMGStat.text = "Crit DMG = " + (GetComponent<GameManager>().pCRITDMG + 1).ToString("F1  ") + "x";
+        critDMGStat.text = "Crit DMG = " + (GetComponent<GameManager>().pCRITDMG + 1).ToString("F1") + "x";
     }
 }
