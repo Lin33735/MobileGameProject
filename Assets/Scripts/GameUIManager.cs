@@ -7,8 +7,11 @@ using UnityEngine.UI;
 public class GameUIManager : MonoBehaviour
 {
     public Slider sliderEHP;
+    public Slider sliderRTimer;
+    public GameObject timerSlider;
 
     [Header("StatPanel")]
+    public TMP_Text roundNum;
     public TMP_Text statPoints;
     public TMP_Text ATKStat;
     public TMP_Text critRStat;
@@ -42,6 +45,11 @@ public class GameUIManager : MonoBehaviour
         statPanel.anchoredPosition = hiddenPos;
 
         DMGTextPF.text = Math.Round(this.GetComponent<GameManager>().DMGCalc(), MidpointRounding.AwayFromZero).ToString();
+
+        if (GetComponent<GameManager>().endlessMode)
+        {
+            timerSlider.SetActive(false);
+        }
     }
 
     // Update is called once per frame
@@ -60,21 +68,31 @@ public class GameUIManager : MonoBehaviour
         Debug.Log($"{sliderEHP.value}, {sliderEHP.maxValue}");
     }
 
+    public void DisplayRoundTimer(bool full, float current)
+    {
+        if (full)
+        {
+            sliderRTimer.maxValue = current;
+        }
+        sliderRTimer.value = current;
+    }
+
     public void ToggleStatPanel()
     {
         if (statPanelOpen)
         {
             statPanelOpen = false;
+            GetComponent<GameManager>().timePause = false;
             GetComponent<GameManager>().ToggleOnTouch(false);
-
             StartAnimation(hiddenPos);
         }
         else
         {
             statPanelOpen = true;
+            GetComponent<GameManager>().timePause = true;
             GetComponent<GameManager>().ToggleOnTouch(true);
             StartAnimation(shownPos);
-        }
+        } 
     }
 
     private void StartAnimation(Vector2 targetPosition)
@@ -109,9 +127,10 @@ public class GameUIManager : MonoBehaviour
 
     public void UpdateStatDisplay()
     {
+        roundNum.text = "Round : " + GetComponent<GameManager>().roundNum.ToString();
         statPoints.text = "Points = " + GetComponent<GameManager>().pStatPoint.ToString();
-        ATKStat.text = "ATK = " + GetComponent<GameManager>().pBATK.ToString();
-        critRStat.text = "Crit Rate = " + (GetComponent<GameManager>().pCRITR * 100).ToString() + "%";
-        critDMGStat.text = "Crit DMG = " + (GetComponent<GameManager>().pCRITDMG + 1).ToString() + "x";
+        ATKStat.text = "ATK = " + GetComponent<GameManager>().pBATK.ToString("F0");
+        critRStat.text = "Crit Rate = " + (GetComponent<GameManager>().pCRITR * 100).ToString("F0") + "%";
+        critDMGStat.text = "Crit DMG = " + (GetComponent<GameManager>().pCRITDMG + 1).ToString("F1  ") + "x";
     }
 }

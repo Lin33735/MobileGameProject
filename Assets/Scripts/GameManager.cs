@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Interactions;
@@ -12,7 +13,13 @@ public class GameManager : MonoBehaviour
     private bool isHolding;
     private float holdTimer;
 
+    [Header("Round Settings")]
     public float roundNum = 1;
+    public int maxRounds;
+    public float timePerRound;
+    public float rTimeRemain;
+    public bool timePause;
+    public bool endlessMode;
 
     [Header("PlayerStat")]
     public GameObject player;
@@ -20,7 +27,7 @@ public class GameManager : MonoBehaviour
     public int pLvl = 1;
     public int pSP = 1;
 
-    public bool pHoldEnable = false;
+    public bool pHoldEnable = true;
     public bool pBurnEnable = false;
 
     public float pBATK = 10f;
@@ -85,6 +92,26 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void FixedUpdate()
+    {
+        if (!timePause && !endlessMode)
+        {
+            rTimeRemain -= Time.deltaTime;
+            if (rTimeRemain < 0)
+            {
+                Debug.Log("end");
+                GetComponent<UIManager>().GameEnd(false);
+            }
+        }
+        GetComponent<GameUIManager>().DisplayRoundTimer(false, rTimeRemain);
+
+        if (roundNum > maxRounds && !endlessMode)
+        {
+            Debug.Log("end");
+            GetComponent<UIManager>().GameEnd(true);
+        }
+    }
+
     private void OnCanceled (InputAction.CallbackContext ctx)
     {
         if (isHolding)
@@ -93,6 +120,7 @@ public class GameManager : MonoBehaviour
             Debug.Log($"HOLD released after{holdTimer:F2}s");
             OnHoldRelease(holdTimer);
             holdTimer = 0;
+            OnTap(ctx);
         }
     }
 
@@ -108,7 +136,6 @@ public class GameManager : MonoBehaviour
             case HoldInteraction:
                 if (!pHoldEnable)
                 {
-                    OnTap(ctx);
                     return;
                 }
                 isHolding = true;
@@ -123,8 +150,14 @@ public class GameManager : MonoBehaviour
     {
         eHP -= DMGCalc();
         GetComponent<GameUIManager>().InstantiateDMGText(DMGCalc());
-        GetComponent<GameUIManager>().DisplayEnemyHPBar(false,eHP);
+        GetComponent<GameUIManager>().DisplayEnemyHPBar(false, eHP);
+        GetComponent<AudioManager>().PlayAttackSound();
         hitEffect.Play();
+
+        if (timePause)
+        {
+            timePause = false;
+        }
     }
 
     private void OnHoldStart()
@@ -154,8 +187,10 @@ public class GameManager : MonoBehaviour
         if (roundNum == 1)
         {
             eHP = eBHP;
-            enemy.GetComponent<SpriteRenderer>().color = new Color(1f, 0.44f, 0.44f, 1f);
             GetComponent<GameUIManager>().DisplayEnemyHPBar(true, eHP);
+            enemy.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
+            rTimeRemain = timePerRound;
+            GetComponent<GameUIManager>().DisplayRoundTimer(true, rTimeRemain);
             return;
         }
         //Check is spawn is Elite
@@ -163,19 +198,23 @@ public class GameManager : MonoBehaviour
         {
             eHP = (1 + roundNum / 5) * eBHP;
             isElite = true;
-            enemy.GetComponent<SpriteRenderer>().color = new Color(0.75f, 0.44f, 1f, 1f);
+            enemy.GetComponent<SpriteRenderer>().color = new Color(0.75f, 0.44f, 0.44f, 1f);
         }
         else
         {
             eHP = (1 + roundNum / 10) * eBHP;
-            isElite= false;
-            enemy.GetComponent<SpriteRenderer>().color = new Color(1f, 0.44f, 0.44f, 1f);
+            isElite= false;;
+            enemy.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
+
         }
         //HP Scaling
         eBHP = (1 + roundNum / 40) * eBHP;
         GetComponent<GameUIManager>().DisplayEnemyHPBar(true, eHP);
+        timePause = true;
+        rTimeRemain = timePerRound;
+        GetComponent<GameUIManager>().DisplayRoundTimer(true, rTimeRemain);
     }
-    
+
     public void ToggleOnTouch(bool t)
     {
         if (t == true)
@@ -202,7 +241,7 @@ public class GameManager : MonoBehaviour
     {
         if (pStatPoint > 0)
         {
-            pCRITR += 0.01f;
+            pCRITR += 0.1f;
             pStatPoint--;
             GetComponent<GameUIManager>().UpdateStatDisplay();
         }
@@ -212,7 +251,7 @@ public class GameManager : MonoBehaviour
     {
         if (pStatPoint > 0)
         {
-            pCRITDMG += 0.1f;
+            pCRITDMG += 0.5f;
             pStatPoint--;
             GetComponent<GameUIManager>().UpdateStatDisplay();
         }
